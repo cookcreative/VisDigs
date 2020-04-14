@@ -39,6 +39,7 @@ public function __construct(){
 
     add_filter('manage_posts_columns', array($this,'visdigs_columns_head'));
     add_action('manage_posts_custom_column', array($this,'visdigs_columns_content'), 10, 2);
+    add_filter('single_template', array($this,'visdigs_single_template'));
 
     register_activation_hook(__FILE__, array($this,'plugin_activate')); //activate hook
     register_deactivation_hook(__FILE__, array($this,'plugin_deactivate')); //deactivate hook
@@ -375,9 +376,10 @@ public function enqueue_admin_scripts_and_styles(){
 
 //enqueues scripts and styled on the front end
 public function enqueue_public_scripts_and_styles(){
-    wp_enqueue_style('visdigs_public_styles', plugin_dir_url(__FILE__). 'css/visdigs_public_styles.css');
-    wp_enqueue_style('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
-
+    wp_register_style('visdigs_public_styles', plugin_dir_url(__FILE__) . 'css/visdigs_public_styles.css');
+    wp_enqueue_style( 'visdigs_public_styles' );
+    //wp_enqueue_style('visdigs_public_styles', plugin_dir_url(__FILE__) . 'css/visdigs_public_styles.css');
+  //  wp_enqueue_style('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
 }
 
 public function passwordProtectPosts($post_object) {
@@ -439,6 +441,14 @@ public function visdigs_options_page()
 <?php
 }
 
+public function visdigs_single_template( $template )
+{
+  if ( is_singular( 'digs' ) ) {
+    $dir = plugin_dir_path( __FILE__ );
+		$template = $dir . 'visdigs-page-template.php';
+	}
+	return $template;
+}
 
 
 }//end class
