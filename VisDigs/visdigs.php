@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) or die( 'Nope, not accessing this' );
 Plugin Name: VisDigs
 Plugin URI:  https://cookcreativemedia.com
 Description: Creates an interfaces to manage digs.
-Version:     1.0.0
+Version:     1.0.1
 Author:      James Cook
 Author URI:  http://cookcreativemedia.com
 License:     GPL2
