@@ -14,7 +14,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 //Adapted from https://www.sitepoint.com/real-world-example-wordpress-plugin-development/
 
 class visdigs{
-  
+
 //magic function (triggered on initialization)
 public function __construct(){
 
@@ -29,24 +29,24 @@ public function __construct(){
     add_action('admin_init', array($this,'visdigs_register_settings' ));
     add_action('admin_menu', array($this, 'visdigs_register_options_page'));
     add_filter( 'protected_title_format', array($this, 'remove_protected_text'));
-    
+
     // Move all "advanced" metaboxes above the default editor
     add_action('edit_form_after_title', function() {
         global $post, $wp_meta_boxes;
         do_meta_boxes(get_current_screen(), 'advanced', $post);
         unset($wp_meta_boxes[get_post_type($post)]['advanced']);
     });
-  
+
     add_filter('manage_posts_columns', array($this,'visdigs_columns_head'));
-    add_action('manage_posts_custom_column', array($this,'visdigs_columns_content'), 10, 2); 
-  
+    add_action('manage_posts_custom_column', array($this,'visdigs_columns_content'), 10, 2);
+
     register_activation_hook(__FILE__, array($this,'plugin_activate')); //activate hook
     register_deactivation_hook(__FILE__, array($this,'plugin_deactivate')); //deactivate hook
 
 }
-  
+
 //triggered on activation of the plugin (called only once)
-public function plugin_activate(){  
+public function plugin_activate(){
     //call our custom content type function
     $this->register_digs_content_type();
     //flush permalinks
@@ -66,15 +66,15 @@ public function register_digs_content_type(){
            'singular_name'      => 'Digs',
            'menu_name'          => 'Digs',
            'name_admin_bar'     => 'Digs',
-           'add_new'            => 'Add New', 
+           'add_new'            => 'Add New',
            'add_new_item'       => 'Add New Digs',
-           'new_item'           => 'New Digs', 
+           'new_item'           => 'New Digs',
            'edit_item'          => 'Edit Details',
            'view_item'          => 'View Digs',
            'all_items'          => 'All Digs',
            'search_items'       => 'Search Digs',
-           'parent_item_colon'  => 'Parent Digs:', 
-           'not_found'          => 'No Digs found.', 
+           'parent_item_colon'  => 'Parent Digs:',
+           'not_found'          => 'No Digs found.',
            'not_found_in_trash' => 'No Digs found in Trash.'
        );
        //arguments for post type
@@ -102,7 +102,7 @@ public function visdigs_columns_head($defaults) {
     $defaults['visdigs_address_col'] = 'Address';
     return $defaults;
 }
- 
+
 public function visdigs_columns_content($column_name, $post_ID) {
     if ($column_name == 'visdigs_ownername_col') {
         $visdigs_ownername = get_post_meta($post_ID,'visdigs_ownername',true);
@@ -121,7 +121,7 @@ public function visdigs_columns_content($column_name, $post_ID) {
         }
     }
 }
-  
+
 //adding meta boxes for the digs content type
 public function add_digs_meta_boxes(){
 
@@ -157,9 +157,9 @@ public function visdigs_meta_box_display($post){
     ?>
     <p>Enter additional information about your digs </p>
     <div class="field-container">
-        <?php 
+        <?php
         //before main form elementst hook
-        do_action('visdigs_admin_form_start'); 
+        do_action('visdigs_admin_form_start');
         ?>
       <div class="field">
             <label for="visdigs_ownername">Owner Name</label>
@@ -211,14 +211,14 @@ public function visdigs_meta_box_display($post){
             <small>Self Contained/Staying with Owner/B&amp;B/Hotel</small>
             <input type="text" name="visdigs_type" id="visdigs_type" value="<?php echo $visdigs_type;?>"/>
         </div>
-    <?php 
+    <?php
     //after main form elementst hook
-    do_action('visdigs_admin_form_end'); 
+    do_action('visdigs_admin_form_end');
     ?>
     </div>
     <?php
 
-}  
+}
 
 //Function to Add meta before content on a page
 public function prepend_digs_meta_to_content($content){
@@ -228,7 +228,7 @@ public function prepend_digs_meta_to_content($content){
     //display meta only on our digs (and if its a single location)
     //if($post_type == 'digs' && is_singular('digs')){
     if($post_type == 'digs'){
-        
+
         //collect variables
         $visdigs_ownername = get_post_meta($post->ID,'visdigs_ownername',true);
         $visdigs_owneremail = get_post_meta($post->ID,'visdigs_owneremail',true);
@@ -245,74 +245,74 @@ public function prepend_digs_meta_to_content($content){
         $html = '';
       if ( ! post_password_required() ) {
         $html .= '<section class="digs-info">';
-        $html .= '<div class="container-fluid">';
+        $html .= '<table>';
         //hook for outputting additional meta data (at the start of the form)
         do_action('visdigs_meta_data_output_start',$post->ID);
 
-        
-      
-        $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Owner Name</b></div>';
-          $html .= '<div class="col-md-8">'. $visdigs_ownername .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Owner Email</b></div>';
-          $html .= '<div class="col-md-8">'. $visdigs_owneremail .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Owner Landline</b></div>';
-          $html .= '<div class="col-md-8">'. $visdigs_ownerlandline .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Owner Mobile</b></div>';
-          $html .= '<div class="col-md-8">'. $visdigs_ownermobile .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Address</b></div>';
-          $html .= '<div class="col-md-8">'. $visdigs_address .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Dayrate</b></div>';
-          $html .= '<div class="col-md-8">&pound;'. $visdigs_dayrate .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Weekrate</b></div>';
-          $html .= '<div class="col-md-8">&pound;'. $visdigs_weekrate .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Monthrate</b></div>';
-          $html .= '<div class="col-md-8">&pound;'. $visdigs_monthrate .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Number of Rooms</b></div>';
-          $html .= '<div class="col-md-8">'. $visdigs_rooms .'</div>';
-        $html .= '</div>';
-      
-       $html .= '<div class="row">';
-          $html .= '<div class="col-md-4"><b>Accom Type</b></div>';
-          $html .= '<div class="col-md-8">'. $visdigs_type .'</div>';
-        $html .= '</div>';
-        
+
+
+        $html .= '<tr>';
+          $html .= '<td><b>Owner Name</b></td>';
+          $html .= '<td>'. $visdigs_ownername .'</td>';
+        $html .= '<tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Owner Email</b></td>';
+          $html .= '<td>'. $visdigs_owneremail .'</td>';
+        $html .= '</tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Owner Landline</b></td>';
+          $html .= '<td>'. $visdigs_ownerlandline .'</td>';
+        $html .= '</tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Owner Mobile</b></td>';
+          $html .= '<td>'. $visdigs_ownermobile .'</td>';
+        $html .= '</tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Address</b></td';
+          $html .= '<td>'. $visdigs_address .'</td>';
+        $html .= '</tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Dayrate</b></td>';
+          $html .= '<td>&pound;'. $visdigs_dayrate .'</td>';
+        $html .= '</tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Weekrate</b></td>';
+          $html .= '<td>&pound;'. $visdigs_weekrate .'</td>';
+        $html .= '</tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Monthrate</b></td>';
+          $html .= '<td>&pound;'. $visdigs_monthrate .'</td>';
+        $html .= '</tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Number of Rooms</b></td>';
+          $html .= '<td>'. $visdigs_rooms .'</td>';
+        $html .= '</tr>';
+
+       $html .= '<tr>';
+          $html .= '<td><b>Accom Type</b></td>';
+          $html .= '<td>'. $visdigs_type .'</td>';
+        $html .= '</tr>';
+
         //hook for outputting additional meta data (at the end of the form)
         do_action('visdigs_meta_data_output_end',$post->ID);
 
-        
+
       //close container
-      $html .= '</div>';
+      $html .= '</table>';
       $html .= '</section>';
       }//end password protected area.
       $html .= '<br /><div class="my-3"><b>More Details</b></div>';
-        $html .= $content;      
-     
-        return $html;  
+        $html .= $content;
+
+        return $html;
 
 
     }else{
@@ -320,14 +320,14 @@ public function prepend_digs_meta_to_content($content){
     }
 
 }
-  
+
 //triggered when adding or editing a digs
 public function save_digs($post_id){
 
     //check for nonce
     if(!isset($_POST['visdigs_nonce_field'])){
         return $post_id;
-    }   
+    }
     //verify nonce
     if(!wp_verify_nonce($_POST['visdigs_nonce_field'], 'visdigs_nonce')){
         return $post_id;
@@ -338,9 +338,9 @@ public function save_digs($post_id){
     }
 
     //get our fields
-  
+
     $visdigs_ownername = isset($_POST['visdigs_ownername']) ? sanitize_text_field($_POST['visdigs_ownername']) : '';
-    $visdigs_owneremail = isset($_POST['visdigs_owneremail']) ? sanitize_text_field($_POST['visdigs_owneremail']) : '';   
+    $visdigs_owneremail = isset($_POST['visdigs_owneremail']) ? sanitize_text_field($_POST['visdigs_owneremail']) : '';
     $visdigs_ownerlandline = isset($_POST['visdigs_ownerlandline']) ? sanitize_text_field($_POST['visdigs_ownerlandline']) : '';
     $visdigs_ownermobile = isset($_POST['visdigs_ownermobile']) ? sanitize_text_field($_POST['visdigs_ownermobile']) : '';
     $visdigs_address = isset($_POST['visdigs_address']) ? sanitize_text_field($_POST['visdigs_address']) : '';
@@ -362,12 +362,12 @@ public function save_digs($post_id){
     update_post_meta($post_id, 'visdigs_rooms', $visdigs_rooms);
     update_post_meta($post_id, 'visdigs_type', $visdigs_type);
 
-    //location save hook 
+    //location save hook
     //used so you can hook here and save additional post fields added via 'visdigs_meta_data_output_end' or 'visdigs_meta_data_output_end'
     do_action('visdigs_admin_save',$post_id, $_POST);
 
 }
-  
+
 //enqueus scripts and stles on the back end
 public function enqueue_admin_scripts_and_styles(){
     wp_enqueue_style('visdigs_admin_styles', plugin_dir_url(__FILE__) . 'css/visdigs_admin_styles.css');
@@ -376,20 +376,20 @@ public function enqueue_admin_scripts_and_styles(){
 //enqueues scripts and styled on the front end
 public function enqueue_public_scripts_and_styles(){
     wp_enqueue_style('visdigs_public_styles', plugin_dir_url(__FILE__). 'css/visdigs_public_styles.css');
-    wp_enqueue_style('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');  
+    wp_enqueue_style('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
 
 }
-  
+
 public function passwordProtectPosts($post_object) {
-	
+
 	//Checks if current post is a specific custom post type
 	if ($post_object->post_type!='digs') {
 		return;
 	}
-	
+
 	$post_object->post_password = get_option('visdigs_password');
 }
-  
+
 
 public function exclude_protected($where) {
 // Filter to hide protected posts
@@ -437,10 +437,10 @@ public function visdigs_options_page()
   </form>
   </div>
 <?php
-} 
-  
-  
-  
+}
+
+
+
 }//end class
 
 global $visdigs;
