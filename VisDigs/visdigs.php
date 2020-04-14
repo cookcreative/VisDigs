@@ -28,18 +28,19 @@ public function __construct(){
     add_action('pre_get_posts', array($this,'exclude_protected_action'));//hide post type from rest of the website
     add_action('admin_init', array($this,'visdigs_register_settings' ));
     add_action('admin_menu', array($this, 'visdigs_register_options_page'));
-    add_filter( 'protected_title_format', array($this, 'remove_protected_text'));
+    add_filter('protected_title_format', array($this, 'remove_protected_text'));
 
     // Move all "advanced" metaboxes above the default editor
     add_action('edit_form_after_title', function() {
-        global $post, $wp_meta_boxes;
-        do_meta_boxes(get_current_screen(), 'advanced', $post);
-        unset($wp_meta_boxes[get_post_type($post)]['advanced']);
+      global $post, $wp_meta_boxes;
+      do_meta_boxes(get_current_screen(), 'advanced', $post);
+      unset($wp_meta_boxes[get_post_type($post)]['advanced']);
     });
 
     add_filter('manage_posts_columns', array($this,'visdigs_columns_head'));
     add_action('manage_posts_custom_column', array($this,'visdigs_columns_content'), 10, 2);
     add_filter('single_template', array($this,'visdigs_single_template'));
+    add_filter('archive_template', array($this,'visdigs_archive_template'));
 
     register_activation_hook(__FILE__, array($this,'plugin_activate')); //activate hook
     register_deactivation_hook(__FILE__, array($this,'plugin_deactivate')); //deactivate hook
@@ -165,7 +166,7 @@ public function visdigs_meta_box_display($post){
       <div class="field">
             <label for="visdigs_ownername">Owner Name</label>
             <small>Full name of owner</small>
-            <input type="name" name="visdigs_ownername" id="visdigs_ownername" value="<?php echo $visdigs_ownername;?>"/>
+            <input type="text" name="visdigs_ownername" id="visdigs_ownername" value="<?php echo $visdigs_ownername;?>"/>
         </div>
         <div class="field">
             <label for="visdigs_ownerlandline">Owner Landline</label>
@@ -185,7 +186,7 @@ public function visdigs_meta_box_display($post){
         <div class="field">
             <label for="visdigs_address">Street Address</label>
             <small>Location of the digs</small>
-            <input type="address" name="visdigs_address" id="visdigs_address" value="<?php echo $visdigs_address;?>"/>
+            <input type="text" name="visdigs_address" id="visdigs_address" value="<?php echo $visdigs_address;?>"/>
         </div>
        <div class="field">
             <label for="visdigs_dayrate">Day Rate</label>
@@ -273,7 +274,7 @@ public function prepend_digs_meta_to_content($content){
         $html .= '</tr>';
 
        $html .= '<tr>';
-          $html .= '<td><b>Address</b></td';
+          $html .= '<td><b>Address</b></td>';
           $html .= '<td>'. $visdigs_address .'</td>';
         $html .= '</tr>';
 
@@ -305,14 +306,15 @@ public function prepend_digs_meta_to_content($content){
         //hook for outputting additional meta data (at the end of the form)
         do_action('visdigs_meta_data_output_end',$post->ID);
 
-
       //close container
       $html .= '</table>';
       $html .= '</section>';
       }//end password protected area.
-      $html .= '<br /><div class="my-3"><b>More Details</b></div>';
-        $html .= $content;
-
+      $html .= '<br />
+                <div class="more-details">
+                <b>More Details</b><br />';
+      $html .= $content;
+      $html .= '</div>';
         return $html;
 
 
@@ -371,15 +373,12 @@ public function save_digs($post_id){
 
 //enqueus scripts and stles on the back end
 public function enqueue_admin_scripts_and_styles(){
-    wp_enqueue_style('visdigs_admin_styles', plugin_dir_url(__FILE__) . 'css/visdigs_admin_styles.css');
+    wp_enqueue_style('visdigs-admin-styles', plugin_dir_url(__FILE__) . 'css/visdigs-admin-styles.css');
 }
 
 //enqueues scripts and styled on the front end
 public function enqueue_public_scripts_and_styles(){
-    wp_register_style('visdigs_public_styles', plugin_dir_url(__FILE__) . 'css/visdigs_public_styles.css');
-    wp_enqueue_style( 'visdigs_public_styles' );
-    //wp_enqueue_style('visdigs_public_styles', plugin_dir_url(__FILE__) . 'css/visdigs_public_styles.css');
-  //  wp_enqueue_style('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
+    wp_enqueue_style('visdigs-public-styles', plugin_dir_url(__FILE__) . 'css/visdigs-public-styles.css');
 }
 
 public function passwordProtectPosts($post_object) {
@@ -435,7 +434,7 @@ public function visdigs_options_page()
   <td><input type="text" id="visdigs_password" name="visdigs_password" value="<?php echo get_option('visdigs_password'); ?>" length="20" /></td>
   </tr>
   </table>
-  <?php  submit_button(); ?>
+  <?php submit_button(); ?>
   </form>
   </div>
 <?php
@@ -443,9 +442,18 @@ public function visdigs_options_page()
 
 public function visdigs_single_template( $template )
 {
-  if ( is_singular( 'digs' ) ) {
+  if (is_singular('digs')) {
     $dir = plugin_dir_path( __FILE__ );
-		$template = $dir . 'visdigs-page-template.php';
+		$template = $dir . 'visdigs-single-template.php';
+	}
+	return $template;
+}
+
+public function visdigs_archive_template( $template )
+{
+  if (is_post_type_archive('digs')) {
+    $dir = plugin_dir_path( __FILE__ );
+		$template = $dir . 'visdigs-archive-template.php';
 	}
 	return $template;
 }

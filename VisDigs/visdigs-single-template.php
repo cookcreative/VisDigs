@@ -3,6 +3,10 @@
 <div id="primary" class="content-area">
 	<main id="main" class="site-main" role="main">
 
+		<div class="visdigs-nav">
+			<a href="<?php echo get_post_type_archive_link( 'digs' ); ?>"><span class="dashicons dashicons-arrow-left-alt2"></span> View All Digs</a>
+		</div>
+
 		<?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
 
         <div class="visdigs">
@@ -21,16 +25,5 @@
 
 	</main>
 </div>
-
-<?php
-    the_post_navigation( array(
-        'next_text' => '<span class="meta-nav" aria-hidden="true">Next</span> ' .
-            '<span class="screen-reader-text">Next post: </span> ' .
-            '<span class="post-title">%title</span>',
-        'prev_text' => '<span class="meta-nav" aria-hidden="true">Previous</span> ' .
-            '<span class="screen-reader-text">Previous post: </span> ' .
-            '<span class="post-title">%title</span>',
-    ) );
-?>
 
 <?php get_footer(); ?>

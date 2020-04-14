@@ -1,0 +1,36 @@
+.visdigs{
+  display:block;
+  border:1px #ccc solid;
+  border-radius:5px;
+  padding:3em!important;
+  margin:1em auto!important;
+  max-width:800px;
+  background-color:#fff;
+}
+.visdigs table{
+  width:100%;
+  border-collapse: collapse;
+}
+.visdigs table td{
+  padding:0.5em;
+  border-bottom:1px solid #ccc;
+}
+.visdigs .more-details{
+  border:1px solid #ccc;
+  padding:0.5em;
+}
+.visdigs-nav{
+  display:block;
+  border:1px #ccc solid;
+  border-radius:5px;
+  padding:0.5em!important;
+  margin:1em auto!important;
+  max-width:800px;
+  background-color:#fff;
+  text-align: center;
+}
+.visdigs-nav .page-numbers{
+  display:inline-block;
+  border:1px solid #ccc;
+  padding:0.2em;
+}
