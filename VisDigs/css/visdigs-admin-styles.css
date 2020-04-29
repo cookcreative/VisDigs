@@ -12,3 +12,20 @@
   width:100%;
   margin-bottom:0.8em;
 }
+.checkboxfield input{
+  width:16px;
+}
+.checkboxfield label{
+  display:inline;
+}
+.imagesfield{
+  margin-top:10px;
+}
+.visdigs_custom_postimage_wrapper{
+  border:1px solid #ccc;
+  padding:10px;
+  clear:both;
+}
+.visdigs_custom_postimage_wrapper img{
+  float:right;
+}

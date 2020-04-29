@@ -4,7 +4,7 @@ defined( 'ABSPATH' ) or die( 'Nope, not accessing this' );
 Plugin Name: VisDigs
 Plugin URI:  https://cookcreativemedia.com
 Description: Creates an interfaces to manage digs.
-Version:     1.0.1
+Version:     1.0.2
 Author:      James Cook
 Author URI:  http://cookcreativemedia.com
 License:     GPL2
@@ -23,7 +23,6 @@ public function __construct(){
     add_action('save_post_digs', array($this,'save_digs')); //save location
     add_action('admin_enqueue_scripts', array($this,'enqueue_admin_scripts_and_styles')); //admin scripts and styles
     add_action('wp_enqueue_scripts', array($this,'enqueue_public_scripts_and_styles')); //public scripts and styles
-    add_filter('the_content', array($this,'prepend_digs_meta_to_content')); //gets our meta data and dispayed it before the content
     add_action('the_post', array($this,'passwordProtectPosts')); //password protects the post type
     add_action('pre_get_posts', array($this,'exclude_protected_action'));//hide post type from rest of the website
     add_action('admin_init', array($this,'visdigs_register_settings' ));
@@ -44,6 +43,8 @@ public function __construct(){
 
     register_activation_hook(__FILE__, array($this,'plugin_activate')); //activate hook
     register_deactivation_hook(__FILE__, array($this,'plugin_deactivate')); //deactivate hook
+  
+    add_action( 'pre_get_posts', array($this,'visdigs_query') );
 
 }
 
@@ -88,7 +89,7 @@ public function register_digs_content_type(){
            'show_in_nav'       => true,
            'query_var'         => true,
            'hierarchical'      => false,
-           'supports'          => array('title','thumbnail','editor'),
+           'supports'          => array('title','editor'),
            'has_archive'       => true,
            'menu_position'     => 20,
            'show_in_admin_bar' => true,
@@ -135,7 +136,7 @@ public function add_digs_meta_boxes(){
         'advanced', //location
         'high' //priority
     );
-}
+ }
 
 //display function used for our custom location meta box*/
 public function visdigs_meta_box_display($post){
@@ -154,6 +155,22 @@ public function visdigs_meta_box_display($post){
     $visdigs_monthrate = get_post_meta($post->ID,'visdigs_monthrate',true);
     $visdigs_rooms = get_post_meta($post->ID,'visdigs_rooms',true);
     $visdigs_type = get_post_meta($post->ID,'visdigs_type',true);
+    $visdigs_pets = get_post_meta($post->ID,'visdigs_pets',true);
+    $visdigs_smoking = get_post_meta($post->ID,'visdigs_smoking',true);
+    $visdigs_smokealarms = get_post_meta($post->ID,'visdigs_smokealarms',true);
+    $visdigs_sharedbathroom = get_post_meta($post->ID,'visdigs_sharedbathroom',true);
+    $visdigs_privatebathroom = get_post_meta($post->ID,'visdigs_privatebathroom',true);
+    $visdigs_towels = get_post_meta($post->ID,'visdigs_towels',true);
+    $visdigs_bedding = get_post_meta($post->ID,'visdigs_bedding',true);
+    $visdigs_kitchen = get_post_meta($post->ID,'visdigs_kitchen',true);
+    $visdigs_laundry = get_post_meta($post->ID,'visdigs_laundry',true);
+    $visdigs_communal = get_post_meta($post->ID,'visdigs_communal',true);
+    $visdigs_garden = get_post_meta($post->ID,'visdigs_garden',true);
+    $visdigs_offparking = get_post_meta($post->ID,'visdigs_offparking',true);
+    $visdigs_onparking = get_post_meta($post->ID,'visdigs_onparking',true);
+    $visdigs_wifi = get_post_meta($post->ID,'visdigs_wifi',true);
+    $visdigs_tv = get_post_meta($post->ID,'visdigs_tv',true);
+    $visdigs_distance = get_post_meta($post->ID,'visdigs_distance',true);
 
 
     ?>
@@ -188,6 +205,11 @@ public function visdigs_meta_box_display($post){
             <small>Location of the digs</small>
             <input type="text" name="visdigs_address" id="visdigs_address" value="<?php echo $visdigs_address;?>"/>
         </div>
+        <div class="field">
+            <label for="visdigs_address">Distance to Theatre</label>
+            <small>E.g. 2 miles, 20min walk</small>
+            <input type="text" name="visdigs_distance" id="visdigs_distance" value="<?php echo $visdigs_distance;?>"/>
+        </div>
        <div class="field">
             <label for="visdigs_dayrate">Day Rate</label>
             <small>Cost for single night stay</small>
@@ -205,122 +227,117 @@ public function visdigs_meta_box_display($post){
         </div>
         <div class="field">
             <label for="visdigs_rooms">Number of Rooms</label>
-            <small>Total number of rooms</small>
-            <input type="number" name="visdigs_rooms" id="visdigs_rooms" value="<?php echo $visdigs_rooms;?>"/>
+            <small>Total number of rooms (please specify if single or double)</small>
+            <input type="text" name="visdigs_rooms" id="visdigs_rooms" value="<?php echo $visdigs_rooms;?>"/>
         </div>
        <div class="field">
             <label for="visdigs_type">Type of digs</label>
             <small>Self Contained/Staying with Owner/B&amp;B/Hotel</small>
             <input type="text" name="visdigs_type" id="visdigs_type" value="<?php echo $visdigs_type;?>"/>
         </div>
+      
+      <div class="field">
+            <label for="visdigs_type">Do you have any pets?</label>
+            <small>(Please Specify)</small>
+            <input type="text" name="visdigs_pets" id="visdigs_pets" value="<?php echo $visdigs_pets;?>"/>
+      </div>
+      <div class="field">
+            <label for="visdigs_type">On Street Parking?</label>
+            <small>Yes/No/Other</small>
+            <input type="text" name="visdigs_onparking" id="visdigs_onparking" value="<?php echo $visdigs_onparking;?>"/>
+        </div>
+      <div class="field">
+            <label for="visdigs_type">Off Street Parking?</label>
+            <small>Yes/No/Other</small>
+            <input type="text" name="visdigs_offparking" id="visdigs_offparking" value="<?php echo $visdigs_offparking;?>"/>
+      </div>
+      
+      <div class="field">
+            <label for="visdigs_type">Utilities</label>
+            <small>Tick available utilities</small>
+      </div>
+      <div class="checkboxfield">
+        <input type="checkbox" value="Yes" id="visdigs_sharedbathroom" name="visdigs_sharedbathroom" <?php if($visdigs_sharedbathroom == 'Yes'){echo"checked";}?>><label for="visdigs_sharedbathroom">Shared Bathroom/Shower Room</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_privatebathroom" name="visdigs_privatebathroom" <?php if($visdigs_privatebathroom == 'Yes'){echo"checked";}?>><label for="visdigs_privatebathroom">Private Bathroom/Shower Room</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_towels" name="visdigs_towels" <?php if($visdigs_towels == 'Yes'){echo"checked";}?>><label for="visdigs_towels">Towels Provided</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_bedding" name="visdigs_bedding" <?php if($visdigs_bedding == 'Yes'){echo"checked";}?>><label for="visdigs_bedding">Bed linen Provided</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_kitchen" name="visdigs_kitchen" <?php if($visdigs_kitchen == 'Yes'){echo"checked";}?>><label for="visdigs_kitchen">Use of Kitchen</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_laundry" name="visdigs_laundry" <?php if($visdigs_laundry == 'Yes'){echo"checked";}?>><label for="visdigs_laundry">Use of Laundry facilities</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_communal" name="visdigs_communal" <?php if($visdigs_communal == 'Yes'){echo"checked";}?>><label for="visdigs_communal">Use of communal areas (e.g. living/dining room)</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_garden" name="visdigs_garden" <?php if($visdigs_garden == 'Yes'){echo"checked";}?>><label for="visdigs_garden">Use of Garden</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_smokealarms" name="visdigs_smokealarms" <?php if($visdigs_smokealarms == 'Yes'){echo"checked";}?>><label for="visdigs_smokealarms">Smoke Alarms installed</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_smoking" name="visdigs_smoking" <?php if($visdigs_smoking == 'Yes'){echo"checked";}?>><label for="visdigs_smoking">Non-Smoking Property</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_wifi" name="visdigs_wifi" <?php if($visdigs_wifi == 'Yes'){echo"checked";}?>><label for="visdigs_wifi">Wifi Available</label><br />
+        <input type="checkbox" value="Yes" id="visdigs_tv" name="visdigs_tv" <?php if($visdigs_tv == 'Yes'){echo"checked";}?>><label for="visdigs_tv">TV in Room</label><br />
+      </div>
+      <div class="field imagesfield">
+            <label>Images</label>
+            <small>Select/Upload 5 Images</small>
+      
+    <?php 
+    //an array with all the images (ba meta key). The same array has to be in custom_postimage_meta_box_save($post_id) as well.
+    $meta_keys = array('second_featured_image','third_featured_image','fourth_featured_image','fith_featured_image','sixth_featured_image');
+
+    foreach($meta_keys as $meta_key){
+        $image_meta_val=get_post_meta( $post->ID, $meta_key, true);
+        ?>
+        <div class="visdigs_custom_postimage_wrapper" id="<?php echo $meta_key; ?>_wrapper" style="margin-bottom:20px;">
+            <img src="<?php echo ($image_meta_val!=''?wp_get_attachment_image_src( $image_meta_val)[0]:''); ?>" style="width:150px;display: <?php echo ($image_meta_val!=''?'block':'none'); ?>" alt="">
+            <?php if ($meta_key == "second_featured_image"){echo"This one is featured on the view all page.<br />";} ?>
+            <a class="addimage button" onclick="custom_postimage_add_image('<?php echo $meta_key; ?>');">Select Image</a><br>
+            <a class="removeimage" style="color:#a00;cursor:pointer;display: <?php echo ($image_meta_val!=''?'block':'none'); ?>" onclick="custom_postimage_remove_image('<?php echo $meta_key; ?>');">Remove Image</a>
+            <div class="clear"></div>
+            <input type="hidden" name="<?php echo $meta_key; ?>" id="<?php echo $meta_key; ?>" value="<?php echo $image_meta_val; ?>" />
+        </div>
+    <?php } ?>
+      </div>
+    <script>
+    function custom_postimage_add_image(key){
+
+        var $wrapper = jQuery('#'+key+'_wrapper');
+
+        custom_postimage_uploader = wp.media.frames.file_frame = wp.media({
+            title: '<?php _e('select image','yourdomain'); ?>',
+            button: {
+                text: '<?php _e('select image','yourdomain'); ?>'
+            },
+            multiple: false
+        });
+        custom_postimage_uploader.on('select', function() {
+
+            var attachment = custom_postimage_uploader.state().get('selection').first().toJSON();
+            var img_url = attachment['url'];
+            var img_id = attachment['id'];
+            $wrapper.find('input#'+key).val(img_id);
+            $wrapper.find('img').attr('src',img_url);
+            $wrapper.find('img').show();
+            $wrapper.find('a.removeimage').show();
+        });
+        custom_postimage_uploader.on('open', function(){
+            var selection = custom_postimage_uploader.state().get('selection');
+            var selected = $wrapper.find('input#'+key).val();
+            if(selected){
+                selection.add(wp.media.attachment(selected));
+            }
+        });
+        custom_postimage_uploader.open();
+        return false;
+    }
+
+    function custom_postimage_remove_image(key){
+        var $wrapper = jQuery('#'+key+'_wrapper');
+        $wrapper.find('input#'+key).val('');
+        $wrapper.find('img').hide();
+        $wrapper.find('a.removeimage').hide();
+        return false;
+    }
+    </script>
     <?php
     //after main form elementst hook
     do_action('visdigs_admin_form_end');
     ?>
     </div>
     <?php
-
-}
-
-//Function to Add meta before content on a page
-public function prepend_digs_meta_to_content($content){
-
-    global $post, $post_type;
-
-    //display meta only on our digs (and if its a single location)
-    //if($post_type == 'digs' && is_singular('digs')){
-    if($post_type == 'digs'){
-
-        //collect variables
-        $visdigs_ownername = get_post_meta($post->ID,'visdigs_ownername',true);
-        $visdigs_owneremail = get_post_meta($post->ID,'visdigs_owneremail',true);
-        $visdigs_ownerlandline = get_post_meta($post->ID,'visdigs_ownerlandline',true);
-        $visdigs_ownermobile = get_post_meta($post->ID,'visdigs_ownermobile',true);
-        $visdigs_address = get_post_meta($post->ID,'visdigs_address',true);
-        $visdigs_dayrate = get_post_meta($post->ID,'visdigs_dayrate',true);
-        $visdigs_weekrate = get_post_meta($post->ID,'visdigs_weekrate',true);
-        $visdigs_monthrate = get_post_meta($post->ID,'visdigs_monthrate',true);
-        $visdigs_rooms = get_post_meta($post->ID,'visdigs_rooms',true);
-        $visdigs_type = get_post_meta($post->ID,'visdigs_type',true);
-
-        //display
-        $html = '';
-      if ( ! post_password_required() ) {
-        $html .= '<section class="digs-info">';
-        $html .= '<table>';
-        //hook for outputting additional meta data (at the start of the form)
-        do_action('visdigs_meta_data_output_start',$post->ID);
-
-
-
-        $html .= '<tr>';
-          $html .= '<td><b>Owner Name</b></td>';
-          $html .= '<td>'. $visdigs_ownername .'</td>';
-        $html .= '<tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Owner Email</b></td>';
-          $html .= '<td>'. $visdigs_owneremail .'</td>';
-        $html .= '</tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Owner Landline</b></td>';
-          $html .= '<td>'. $visdigs_ownerlandline .'</td>';
-        $html .= '</tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Owner Mobile</b></td>';
-          $html .= '<td>'. $visdigs_ownermobile .'</td>';
-        $html .= '</tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Address</b></td>';
-          $html .= '<td>'. $visdigs_address .'</td>';
-        $html .= '</tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Dayrate</b></td>';
-          $html .= '<td>&pound;'. $visdigs_dayrate .'</td>';
-        $html .= '</tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Weekrate</b></td>';
-          $html .= '<td>&pound;'. $visdigs_weekrate .'</td>';
-        $html .= '</tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Monthrate</b></td>';
-          $html .= '<td>&pound;'. $visdigs_monthrate .'</td>';
-        $html .= '</tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Number of Rooms</b></td>';
-          $html .= '<td>'. $visdigs_rooms .'</td>';
-        $html .= '</tr>';
-
-       $html .= '<tr>';
-          $html .= '<td><b>Accom Type</b></td>';
-          $html .= '<td>'. $visdigs_type .'</td>';
-        $html .= '</tr>';
-
-        //hook for outputting additional meta data (at the end of the form)
-        do_action('visdigs_meta_data_output_end',$post->ID);
-
-      //close container
-      $html .= '</table>';
-      $html .= '</section>';
-      }//end password protected area.
-      $html .= '<br />
-                <div class="more-details">
-                <b>More Details</b><br />';
-      $html .= $content;
-      $html .= '</div>';
-        return $html;
-
-
-    }else{
-        return $content;
-    }
 
 }
 
@@ -352,6 +369,22 @@ public function save_digs($post_id){
     $visdigs_monthrate = isset($_POST['visdigs_monthrate']) ? sanitize_text_field($_POST['visdigs_monthrate']) : '';
     $visdigs_rooms = isset($_POST['visdigs_rooms']) ? sanitize_text_field($_POST['visdigs_rooms']) : '';
     $visdigs_type = isset($_POST['visdigs_type']) ? sanitize_text_field($_POST['visdigs_type']) : '';
+    $visdigs_pets = isset($_POST['visdigs_pets']) ? sanitize_text_field($_POST['visdigs_pets']) : '';
+    $visdigs_smoking = isset($_POST['visdigs_smoking']) ? sanitize_text_field($_POST['visdigs_smoking']) : '';
+    $visdigs_smokealarms = isset($_POST['visdigs_smokealarms']) ? sanitize_text_field($_POST['visdigs_smokealarms']) : '';
+    $visdigs_sharedbathroom = isset($_POST['visdigs_sharedbathroom']) ? sanitize_text_field($_POST['visdigs_sharedbathroom']) : '';
+    $visdigs_privatebathroom = isset($_POST['visdigs_privatebathroom']) ? sanitize_text_field($_POST['visdigs_privatebathroom']) : '';
+    $visdigs_towels = isset($_POST['visdigs_towels']) ? sanitize_text_field($_POST['visdigs_towels']) : '';
+    $visdigs_bedding = isset($_POST['visdigs_bedding']) ? sanitize_text_field($_POST['visdigs_bedding']) : '';
+    $visdigs_kitchen = isset($_POST['visdigs_kitchen']) ? sanitize_text_field($_POST['visdigs_kitchen']) : '';
+    $visdigs_laundry = isset($_POST['visdigs_laundry']) ? sanitize_text_field($_POST['visdigs_laundry']) : '';
+    $visdigs_communal = isset($_POST['visdigs_communal']) ? sanitize_text_field($_POST['visdigs_communal']) : '';
+    $visdigs_garden = isset($_POST['visdigs_garden']) ? sanitize_text_field($_POST['visdigs_garden']) : '';
+    $visdigs_offparking = isset($_POST['visdigs_offparking']) ? sanitize_text_field($_POST['visdigs_offparking']) : '';
+    $visdigs_onparking = isset($_POST['visdigs_onparking']) ? sanitize_text_field($_POST['visdigs_onparking']) : '';
+    $visdigs_wifi = isset($_POST['visdigs_wifi']) ? sanitize_text_field($_POST['visdigs_wifi']) : '';
+    $visdigs_tv = isset($_POST['visdigs_tv']) ? sanitize_text_field($_POST['visdigs_tv']) : '';
+    $visdigs_distance = isset($_POST['visdigs_distance']) ? sanitize_text_field($_POST['visdigs_distance']) : '';
 
     //update phone, memil and address fields
     update_post_meta($post_id, 'visdigs_ownername', $visdigs_ownername);
@@ -364,6 +397,32 @@ public function save_digs($post_id){
     update_post_meta($post_id, 'visdigs_monthrate', $visdigs_monthrate);
     update_post_meta($post_id, 'visdigs_rooms', $visdigs_rooms);
     update_post_meta($post_id, 'visdigs_type', $visdigs_type);
+    update_post_meta($post_id, 'visdigs_pets', $visdigs_pets);
+    update_post_meta($post_id, 'visdigs_smoking', $visdigs_smoking);
+    update_post_meta($post_id, 'visdigs_smokealarms', $visdigs_smokealarms);
+    update_post_meta($post_id, 'visdigs_sharedbathroom', $visdigs_sharedbathroom);
+    update_post_meta($post_id, 'visdigs_privatebathroom', $visdigs_privatebathroom);
+    update_post_meta($post_id, 'visdigs_towels', $visdigs_towels);
+    update_post_meta($post_id, 'visdigs_bedding', $visdigs_bedding);
+    update_post_meta($post_id, 'visdigs_kitchen', $visdigs_kitchen);
+    update_post_meta($post_id, 'visdigs_laundry', $visdigs_laundry);
+    update_post_meta($post_id, 'visdigs_communal', $visdigs_communal);
+    update_post_meta($post_id, 'visdigs_garden', $visdigs_garden);
+    update_post_meta($post_id, 'visdigs_offparking', $visdigs_offparking);
+    update_post_meta($post_id, 'visdigs_onparking', $visdigs_onparking);
+    update_post_meta($post_id, 'visdigs_wifi', $visdigs_wifi);
+    update_post_meta($post_id, 'visdigs_tv', $visdigs_tv);
+    update_post_meta($post_id, 'visdigs_distance', $visdigs_distance);
+    
+    //saving our images
+    $meta_keys = array('second_featured_image','third_featured_image','fourth_featured_image','fith_featured_image','sixth_featured_image');
+        foreach($meta_keys as $meta_key){
+            if(isset($_POST[$meta_key]) && intval($_POST[$meta_key])!=''){
+                update_post_meta( $post_id, $meta_key, intval($_POST[$meta_key]));
+            }else{
+                update_post_meta( $post_id, $meta_key, '');
+            }
+     }
 
     //location save hook
     //used so you can hook here and save additional post fields added via 'visdigs_meta_data_output_end' or 'visdigs_meta_data_output_end'
@@ -413,13 +472,16 @@ public function remove_protected_text() {
 
 public function visdigs_register_settings() {
    add_option( 'visdigs_password', 'password');
+  add_option( 'visdigs_intro', 'intro');
    register_setting( 'visdigs_options_group', 'visdigs_password', 'visdigs_callback' );
+  register_setting( 'visdigs_options_group', 'visdigs_intro', 'visdigs_callback' );
 }
 public function visdigs_register_options_page() {
   add_options_page('VisDigs Settings', 'VisDigs Settings', 'manage_options', 'visdigs', array($this, 'visdigs_options_page'));
 }
 public function visdigs_options_page()
 {
+ 
 ?>
   <div>
   <?php screen_icon(); ?>
@@ -432,6 +494,16 @@ public function visdigs_options_page()
   <tr valign="top">
   <th scope="row"><label for="visdigs_password">Password</label></th>
   <td><input type="text" id="visdigs_password" name="visdigs_password" value="<?php echo get_option('visdigs_password'); ?>" length="20" /></td>
+  </tr>
+  <tr valign="top">
+  <th scope="row"><label for="visdigs_password">Intro</label></th>
+  <td>
+    <?php 
+   wp_editor( get_option('visdigs_intro'), 'visdigs_intro', array( 
+        'textarea_name' => 'visdigs_intro',
+        'media_buttons' => false,
+    ) );
+  ?>
   </tr>
   </table>
   <?php submit_button(); ?>
@@ -457,6 +529,21 @@ public function visdigs_archive_template( $template )
 	}
 	return $template;
 }
+  
+function visdigs_query( $query ) {
+	
+	if( $query->is_main_query() && !$query->is_feed() && !is_admin() && $query->is_post_type_archive( 'digs' ) ) {
+
+		$query->set( 'orderby', 'meta_value' );
+		$query->set( 'meta_key', 'visdigs_distance' );
+		$query->set( 'order', 'ASC' );
+		//$query->set( 'posts_per_page', '4' );
+	}
+
+}
+
+
+  
 
 
 }//end class

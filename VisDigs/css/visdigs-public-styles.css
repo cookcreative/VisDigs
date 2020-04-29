@@ -15,6 +15,15 @@
   padding:0.5em;
   border-bottom:1px solid #ccc;
 }
+.visdigs-50 td{
+  width:50%;
+}
+.visdigs-heading{
+  font-size:1.4em;
+  margin:20px 0!important;
+  font-weight:bold;
+  display:block;
+}
 .visdigs .more-details{
   border:1px solid #ccc;
   padding:0.5em;
@@ -33,4 +42,70 @@
   display:inline-block;
   border:1px solid #ccc;
   padding:0.2em;
+}
+
+.visdigs-row{
+  display:block;
+  width:100%;
+  clear:both;
+}
+.visdigs-col-50{
+  width:50%;
+  display:block;
+  float:left;
+}
+
+@media screen and (max-width: 600px) {
+  .visdigs-col-50{
+  width:100%;
+  display:block;
+  float:left;
+  clear:both;
+  }
+}
+.visdigs-featured-image{
+  width:100%;
+}
+.visdigs-no-image{
+  width:100%;
+  height:200px;
+  background-color:#ccc;
+}
+a.visdigs-button{
+ display:inline-block!important;
+ padding:0.3em 1.2em!important;
+ margin:0.3em 0.3em 0.3em 0!important;
+ border-radius:2em!important;
+ box-sizing: border-box!important;
+ text-decoration:none!important;
+ font-weight:300!important;
+ color:#FFFFFF!important;
+ background-color:#4eb5f1!important;
+ text-align:center!important;
+ transition: all 0.2s!important;
+}
+a.visdigs-button:hover{
+ background-color:#4095c6!important;
+}
+@media all and (max-width:30em){
+ a.visdigs-button{
+  display:block!important;
+  margin:0.2em auto!important;
+ }
+}
+
+.visdigs-title{
+  font-size:1.4em!important;
+  margin:0 0 0.4em 0!important;
+}
+.visdigs-single-images img{
+  border:1px solid #ccc;
+  padding:10px!important;
+  margin:10px!important;
+}
+.visdigs-disclaimer{
+  background-color:#eee;
+}
+.visdigs-disclaimer p{
+  font-size:0.7em!important;
 }
